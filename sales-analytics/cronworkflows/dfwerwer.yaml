@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: dfwerwer
+  namespace: sales-analytics
+spec:
+  schedules:
+    - "0 6 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        steps:
+          - - name: run
+              templateRef:
+                name: my-connector-template
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: target-table
+                    value: ""
+                  - name: batch-size
+                    value: "10000"
+                  - name: maikk
+                    value: "xxxcgbdfb"
