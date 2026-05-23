@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: my-pipeline
+  namespace: finance-risk
+spec:
+  schedule: "0 6 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        container:
+          image: registry.example.com/pipelines/my-pipeline:latest
+          command: [python, main.py]
+          env:
+            - name: ENV_VAR
+              value: "value"
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
