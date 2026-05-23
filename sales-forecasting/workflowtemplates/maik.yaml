@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: maik
+  namespace: sales-forecasting
+  annotations:
+    platform.example.com/description: "asd"
+  labels:
+    platform.example.com/team: ""
+    platform.example.com/category: "connector"
+spec:
+  # A WorkflowTemplate defines reusable workflow logic inside one workspace namespace.
+  # Commit path: sales-forecasting/workflowtemplates/maik.yaml
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: target-table
+            value: ""
+          - name: batch-size
+            value: "10000"
+      container:
+        image: registry.example.com/platform-connectors/connector-database:latest
+        command: [python, main.py]
+        args:
+          - "--table={{inputs.parameters.target-table}}"
+          - "--batch-size={{inputs.parameters.batch-size}}"
+        env:
+          - name: DB_HOST
+            value: "postgres.internal"
+          - name: DB_NAME
+            value: "sales_db"
+          - name: DB_USER
+            value: "pipeline_user"
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 512Mi
+            cpu: 500m
