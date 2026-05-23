@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: my-connector-template
+  namespace: sales-analytics
+  annotations:
+    platform.example.com/description: "test"
+  labels:
+    platform.example.com/team: ""
+    platform.example.com/category: "connector"
+spec:
+  # A WorkflowTemplate defines reusable workflow logic inside one workspace namespace.
+  # Commit path: sales-analytics/workflowtemplates/my-connector-template.yaml
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: target-table
+            value: ""
+          - name: batch-size
+            value: "10000"
+          - name: maikk
+            value: "xxx"
+      container:
+        image: registry.example.com/platform-connectors/connector-database:latest
+        command: [python, main.py]
+        args:
+          - "--table={{inputs.parameters.target-table}}"
+          - "--batch-size={{inputs.parameters.batch-size}}"
+        env:
+          - name: DB_HOST
+            value: "postgres.internal"
+          - name: DB_NAME
+            value: "sales_db"
+          - name: DB_USER
+            value: "pipeline_user"
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 512Mi
+            cpu: 500m
