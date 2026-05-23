@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: xxx
+  namespace: sales-forecasting
+spec:
+  schedule: "0 6 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        steps:
+          - - name: run
+              templateRef:
+                name: maik
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: target-table
+                    value: "sad"
+                  - name: batch-size
+                    value: "10000"
