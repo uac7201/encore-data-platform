@@ -4,7 +4,8 @@ metadata:
   name: my-pipeline
   namespace: sales-forecasting
 spec:
-  schedule: "0 6 * * *"
+  schedules:
+    - "0 6 * * *"
   timezone: Europe/Berlin
   concurrencyPolicy: Allow
   workflowSpec:
