@@ -1,0 +1,11 @@
+apiVersion: platform.encore.com/v1alpha1
+kind: EncoreWorkspace
+metadata:
+  name: maik-ws
+  namespace: management
+spec:
+  team: maik-ws
+  responsible: maik.bialas@enercity.de
+  alerting: maik.bialas@enercity.de
+  costCenter: "12345"
+  aadGroupId: 1111-1111-1111-111
