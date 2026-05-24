@@ -23,7 +23,7 @@ spec:
           image: registry.example.com/pipelines/my-pipeline:latest
           resources:
             limits:
-              cpu: 500m
+              cpu: 520m
               memory: 512Mi
             requests:
               cpu: 550m
