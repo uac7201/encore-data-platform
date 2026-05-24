@@ -26,6 +26,6 @@ spec:
               cpu: 520m
               memory: 512Mi
             requests:
-              cpu: 550m
+              cpu: 520m
               memory: 256Mi
         name: main
