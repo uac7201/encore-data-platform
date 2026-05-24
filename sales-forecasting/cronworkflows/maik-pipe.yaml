@@ -3,25 +3,29 @@ kind: CronWorkflow
 metadata:
   name: maik-pipe
   namespace: sales-forecasting
+  annotations:
+    cronworkflows.argoproj.io/last-used-schedule: CRON_TZ=Europe/Berlin 0 6 * * *
 spec:
-  schedules:
-    - "0 6 * * *"
-  timezone: Europe/Berlin
   concurrencyPolicy: Allow
+  schedules:
+    - 0 6 * * *
+  timezone: Europe/Berlin
   workflowSpec:
     entrypoint: main
     templates:
-      - name: main
-        container:
-          image: registry.example.com/pipelines/my-pipeline:latest
-          command: [python, main.py]
+      - container:
+          command:
+            - python
+            - main.py
           env:
             - name: ENV_VAR
-              value: "value"
+              value: value
+          image: registry.example.com/pipelines/my-pipeline:latest
           resources:
-            requests:
-              memory: 256Mi
-              cpu: 250m
             limits:
-              memory: 512Mi
               cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 550m
+              memory: 256Mi
+        name: main
