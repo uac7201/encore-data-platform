@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: qqqq
+  namespace: sales-forecasting
+  labels:
+    platform.example.com/environment: test
+spec:
+  schedules:
+    - "0 9 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowMetadata:
+    labels:
+      platform.example.com/environment: test
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        steps:
+          - - name: run
+              templateRef:
+                name: maik
+                template: main
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: target-table
+                    value: "test"
+                  - name: batch-size
+                    value: "10"
