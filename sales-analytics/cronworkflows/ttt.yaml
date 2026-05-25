@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: ttt
+  namespace: sales-analytics
+  labels:
+    platform.example.com/environment: dev
+spec:
+  schedules:
+    - "0 6 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowMetadata:
+    labels:
+      platform.example.com/environment: dev
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        steps:
+          - - name: run
+              templateRef:
+                name: demo
+                template: main
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: x
+                    value: "asd"
+                  - name: y
+                    value: "asdasdasd2"
