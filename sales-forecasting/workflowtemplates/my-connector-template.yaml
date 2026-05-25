@@ -4,7 +4,7 @@ metadata:
   name: my-connector-template
   namespace: sales-forecasting
   annotations:
-    platform.example.com/description: "ddd"
+    platform.example.com/description: "w"
   labels:
     platform.example.com/team: ""
     platform.example.com/category: "connector"
@@ -24,7 +24,7 @@ spec:
         command: [python, main.py]
         args:
           - "--table={{inputs.parameters.target-table}}"
-          - "--batch-size={{inputs.parameters.batch-size}}"
+          - --batch-size={{inputs.parameters.batch-size}}
         env:
           - name: DB_HOST
             value: "postgres.internal"
