@@ -12,8 +12,8 @@ spec:
   templates:
     - container:
         args:
-          - --table={{inputs.parameters.x}
-          - --batch-size={{inputs.parameters.y}
+          - --table={{inputs.parameters.x}}
+          - --batch-size={{inputs.parameters.y}}
         command:
           - python
           - main.py
