@@ -4,5 +4,6 @@ metadata:
   name: cm
   namespace: sales-forecasting
 data:
-  DB_USER: ASD
   DB_HOST: AS
+  DB_USER: d
+  DB_NAME: asd
