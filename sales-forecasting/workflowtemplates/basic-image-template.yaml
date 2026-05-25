@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: basic-image-template
+  namespace: sales-forecasting
+  annotations:
+    platform.example.com/description: "For running a basic image"
+  labels:
+    platform.example.com/team: ""
+    platform.example.com/category: "connector"
+spec:
+  # A WorkflowTemplate defines reusable workflow logic inside one workspace namespace.
+  # Commit path: sales-forecasting/workflowtemplates/basic-image-template.yaml
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: image
+            value: ""
+      container:
+        image: {{inputs.parameters.image}}
+        command: [python, main.py]
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 512Mi
+            cpu: 500m
