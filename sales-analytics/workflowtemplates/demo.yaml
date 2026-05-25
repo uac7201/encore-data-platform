@@ -3,44 +3,44 @@ kind: WorkflowTemplate
 metadata:
   name: demo
   namespace: sales-analytics
-  annotations:
-    platform.example.com/description: "bla"
   labels:
+    platform.example.com/category: connector
     platform.example.com/team: ""
-    platform.example.com/category: "connector"
+  annotations:
+    platform.example.com/description: bla
 spec:
-  # A WorkflowTemplate defines reusable workflow logic inside one workspace namespace.
-  # Commit path: sales-analytics/workflowtemplates/demo.yaml
   templates:
-    - name: main
+    - container:
+        args:
+          - --table={{inputs.parameters.x}
+          - --batch-size={{inputs.parameters.y}
+        command:
+          - python
+          - main.py
+        env:
+          - name: DB_HOST
+            value: postgres.internal
+          - name: DB_NAME
+            value: sales_db
+          - name: DB_USER
+            value: pipeline_user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: db-credentials
+        image: registry.example.com/platform-connectors/connector-database:latest
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
       inputs:
         parameters:
           - name: x
             value: "1"
           - name: y
             value: "2"
-      container:
-        image: registry.example.com/platform-connectors/connector-database:latest
-        command: [python, main.py]
-        args:
-          - "--table={{inputs.parameters.target-table}}"
-          - "--batch-size={{inputs.parameters.batch-size}}"
-        env:
-          - name: DB_HOST
-            value: "postgres.internal"
-          - name: DB_NAME
-            value: "sales_db"
-          - name: DB_USER
-            value: "pipeline_user"
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: password
-        resources:
-          requests:
-            memory: 256Mi
-            cpu: 250m
-          limits:
-            memory: 512Mi
-            cpu: 500m
+      name: main
