@@ -5,3 +5,4 @@ metadata:
   namespace: sales-forecasting
 data:
   DB_USER: ASD
+  DB_HOST: AS
