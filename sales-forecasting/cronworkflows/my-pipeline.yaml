@@ -5,33 +5,35 @@ metadata:
   namespace: sales-forecasting
   labels:
     platform.example.com/environment: dev
+  annotations:
+    cronworkflows.argoproj.io/last-used-schedule: "* * * * *"
 spec:
+  schedules:
+    - "* 10 * * *"
   workflowMetadata:
     labels:
       example: "true"
-  schedules:
-    - "* * * * *"
   workflowSpec:
-    entrypoint: argosay
     arguments:
       parameters:
         - name: message
           value: hello argo
+    entrypoint: argosay
+    podGC:
+      strategy: OnPodCompletion
     templates:
-      - name: argosay
+      - container:
+          args:
+            - echo
+            - "{{inputs.parameters.message}}"
+          command:
+            - /argosay
+          image: argoproj/argosay:v2
+          name: main
         inputs:
           parameters:
             - name: message
               value: "{{workflow.parameters.message}}"
-        container:
-          name: main
-          image: argoproj/argosay:v2
-          command:
-            - /argosay
-          args:
-            - echo
-            - "{{inputs.parameters.message}}"
+        name: argosay
     ttlStrategy:
       secondsAfterCompletion: 300
-    podGC:
-      strategy: OnPodCompletion
