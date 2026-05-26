@@ -1,0 +1,87 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: megastep
+  namespace: sales-forecasting
+spec:
+  schedule: "* 10 * * *"
+  timezone: "UTC"
+  concurrencyPolicy: "Replace"
+
+  workflowSpec:
+    entrypoint: main
+
+    templates:
+
+      # Main workflow
+      - name: main
+        steps:
+          # Run numbers 1..20 in parallel
+          - - name: process-number
+              template: number-workflow
+              arguments:
+                parameters:
+                  - name: number
+                    value: "{{item}}"
+              withSequence:
+                start: "1"
+                end: "20"
+
+          # Final step after ALL parallel pods complete
+          - - name: all-done
+              template: done
+
+      # Per-number workflow
+      - name: number-workflow
+        inputs:
+          parameters:
+            - name: number
+        steps:
+          # Step 1
+          - - name: print-number
+              template: print
+              arguments:
+                parameters:
+                  - name: number
+                    value: "{{inputs.parameters.number}}"
+
+          # Step 2
+          - - name: print-done
+              template: print-step-done
+              arguments:
+                parameters:
+                  - name: number
+                    value: "{{inputs.parameters.number}}"
+
+      # Pod: print the number
+      - name: print
+        inputs:
+          parameters:
+            - name: number
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "{{inputs.parameters.number}}"
+
+      # Pod: print completion message
+      - name: print-step-done
+        inputs:
+          parameters:
+            - name: number
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "step 1 is done for number {{inputs.parameters.number}}"
+
+      # Final pod after everything completes
+      - name: done
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "DONE"
