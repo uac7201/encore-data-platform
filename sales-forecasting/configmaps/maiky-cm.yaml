@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maiky-cm
+  namespace: sales-forecasting
+data:
+  e: a
