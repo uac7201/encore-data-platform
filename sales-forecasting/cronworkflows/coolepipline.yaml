@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: coolepipline
+  namespace: sales-forecasting
+  labels:
+    platform.example.com/environment: prod
+spec:
+  schedules:
+    - "0 6 * * *"
+  timezone: Europe/Berlin
+  concurrencyPolicy: Allow
+  workflowMetadata:
+    labels:
+      platform.example.com/environment: prod
+  workflowSpec:
+    entrypoint: main
+    templates:
+      - name: main
+        steps:
+          - - name: run
+              templateRef:
+                name: basic-image-template
+                template: main
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: image
+                    value: "registry.example.com/platform-connectors/connector-database:latest"
