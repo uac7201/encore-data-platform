@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: multistep
+  namespace: sales-forecasting
+spec:
+  schedule: "* 10 * * *" 
+  timezone: "UTC"
+  concurrencyPolicy: "Replace"
+
+  workflowSpec:
+    entrypoint: print-numbers
+
+    templates:
+      - name: print-numbers
+        steps:
+          - - name: print-number
+              template: print
+              arguments:
+                parameters:
+                  - name: number
+                    value: "{{item}}"
+              withSequence:
+                start: "1"
+                end: "20"
+
+      - name: print
+        inputs:
+          parameters:
+            - name: number
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "{{inputs.parameters.number}}"
