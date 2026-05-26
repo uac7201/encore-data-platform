@@ -3,25 +3,35 @@ kind: CronWorkflow
 metadata:
   name: my-pipeline
   namespace: sales-forecasting
+  labels:
+    platform.example.com/environment: dev
 spec:
+  workflowMetadata:
+    labels:
+      example: "true"
   schedules:
-    - "0 6 * * *"
-  timezone: Europe/Berlin
-  concurrencyPolicy: Allow
+    - "* * * * *"
   workflowSpec:
-    entrypoint: main
+    entrypoint: argosay
+    arguments:
+      parameters:
+        - name: message
+          value: hello argo
     templates:
-      - name: main
+      - name: argosay
+        inputs:
+          parameters:
+            - name: message
+              value: "{{workflow.parameters.message}}"
         container:
-          image: registry.example.com/pipelines/my-pipeline:latest
-          command: [python, main.py]
-          env:
-            - name: ENV_VAR
-              value: "value"
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 250m
-            limits:
-              memory: 512Mi
-              cpu: 500m
+          name: main
+          image: argoproj/argosay:v2
+          command:
+            - /argosay
+          args:
+            - echo
+            - "{{inputs.parameters.message}}"
+    ttlStrategy:
+      secondsAfterCompletion: 300
+    podGC:
+      strategy: OnPodCompletion
