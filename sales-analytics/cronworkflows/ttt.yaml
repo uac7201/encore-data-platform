@@ -4,12 +4,14 @@ metadata:
   name: ttt
   namespace: sales-analytics
   labels:
-    platform.example.com/environment: dev
+    platform.example.com/environment: test
+  annotations:
+    cronworkflows.argoproj.io/last-used-schedule: CRON_TZ=Europe/Berlin 0 6 * * *
 spec:
-  schedules:
-    - "0 6 * * *"
-  timezone: Europe/Berlin
   concurrencyPolicy: Allow
+  schedules:
+    - 0 6 * * *
+  timezone: Europe/Berlin
   workflowMetadata:
     labels:
       platform.example.com/environment: dev
@@ -18,14 +20,14 @@ spec:
     templates:
       - name: main
         steps:
-          - - name: run
-              templateRef:
-                name: demo
-                template: main
-                clusterScope: false
-              arguments:
+          - - arguments:
                 parameters:
                   - name: x
-                    value: "asd"
+                    value: asd
                   - name: y
-                    value: "asdasdasd2"
+                    value: asdasdasd2
+              name: run
+              templateRef:
+                clusterScope: false
+                name: demo
+                template: main
