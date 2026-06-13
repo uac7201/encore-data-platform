@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: five-pods-max-two
+  namespace: sales-forecasting
+spec:
+  schedule: "0 * * * *" # every hour
+  concurrencyPolicy: Forbid
+
+  workflowSpec:
+    entrypoint: run-jobs
+    arguments:
+      parameters:
+        - name: worker-count
+          value: "5"
+
+    templates:
+      - name: run-jobs
+        parallelism: 2
+        steps:
+          - - name: worker
+              template: worker
+              arguments:
+                parameters:
+                  - name: id
+                    value: "{{item}}"
+              withSequence:
+                start: "1"
+                count: "{{workflow.parameters.worker-count}}"
+
+      - name: worker
+        inputs:
+          parameters:
+            - name: id
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "Running worker {{inputs.parameters.id}}"
+              sleep 30
+              echo "Done worker {{inputs.parameters.id}}"
