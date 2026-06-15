@@ -4,15 +4,15 @@ metadata:
   name: tww
   namespace: sales-analytics
   labels:
-    platform.example.com/environment: dev
+    platform.example.com/environment: test
 spec:
-  schedules:
-    - "0 6 * * *"
-  timezone: Europe/Berlin
   concurrencyPolicy: Allow
+  schedules:
+    - 0 6 * * *
+  timezone: Europe/Berlin
   workflowMetadata:
     labels:
-      platform.example.com/environment: dev
+      platform.example.com/environment: test
   workflowSpec:
     entrypoint: main
     templates:
@@ -20,6 +20,6 @@ spec:
         steps:
           - - name: run
               templateRef:
+                clusterScope: true
                 name: simple-cluster-workflow-template
                 template: main
-                clusterScope: true
