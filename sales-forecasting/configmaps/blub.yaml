@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blub
+  namespace: sales-forecasting
+data:
+  asd: asd
