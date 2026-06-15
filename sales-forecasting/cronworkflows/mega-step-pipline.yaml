@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: mega-step-pipline
+  namespace: sales-forecasting
+spec:
+  schedule: "0 0 1 * *"   # First day of every month at midnight
+  timezone: "Europe/Berlin"
+  concurrencyPolicy: "Forbid"
+
+  workflowSpec:
+    entrypoint: main
+
+    templates:
+      - name: main
+        steps:
+          # Stage 1: 10 pods in parallel
+          - - name: workers
+              template: worker
+              withSequence:
+                count: "10"
+
+          # Stage 2: 5 pods in parallel
+          - - name: processors
+              template: processor
+              withSequence:
+                count: "5"
+
+          # Final pod
+          - - name: summary
+              template: summary
+
+      - name: worker
+        inputs:
+          parameters:
+            - name: item
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "Sales worker {{inputs.parameters.item}} processing leads..."
+              sleep 5
+              echo "Worker {{inputs.parameters.item}} completed."
+
+      - name: processor
+        inputs:
+          parameters:
+            - name: item
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "Sales processor {{inputs.parameters.item}} aggregating results..."
+              sleep 3
+              echo "Processor {{inputs.parameters.item}} completed."
+
+      - name: summary
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "========================================"
+              echo "Monthly Sales Processing Completed"
+              echo "10 worker pods executed"
+              echo "5 processor pods executed"
+              echo "Sales reports and metrics are ready"
+              echo "Execution time: $(date)"
+              echo "========================================"
