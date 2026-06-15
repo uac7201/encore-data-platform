@@ -1,0 +1,109 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: parallel-dq-snowflake-job
+  namespace: sales-forecasting
+  labels:
+    platform.example.com/environment: dev
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  workflowSpec:
+    entrypoint: main
+
+    templates:
+      - name: main
+        steps:
+          - - name: parallel-worker-1
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 1 processing data"
+            - name: parallel-worker-2
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 2 processing data"
+            - name: parallel-worker-3
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 3 processing data"
+            - name: parallel-worker-4
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 4 processing data"
+            - name: parallel-worker-5
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 5 processing data"
+            - name: parallel-worker-6
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 6 processing data"
+            - name: parallel-worker-7
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 7 processing data"
+            - name: parallel-worker-8
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 8 processing data"
+            - name: parallel-worker-9
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 9 processing data"
+            - name: parallel-worker-10
+              template: worker
+              arguments:
+                parameters:
+                  - name: message
+                    value: "worker pod 10 processing data"
+
+          - - name: data-quality-check
+              template: data-quality
+
+          - - name: write-to-snowflake
+              template: snowflake-write
+
+      - name: worker
+        inputs:
+          parameters:
+            - name: message
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - echo "{{inputs.parameters.message}}"
+
+      - name: data-quality
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - echo "judging data quality after all 10 pods completed"
+
+      - name: snowflake-write
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - echo "writing validated data to Snowflake"
