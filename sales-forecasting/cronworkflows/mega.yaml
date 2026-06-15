@@ -1,0 +1,68 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: mega
+  namespace: sales-forecasting
+spec:
+  schedule: "0 0 1 * *"
+  timezone: "Europe/Berlin"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  workflowSpec:
+    entrypoint: main
+
+    templates:
+      - name: main
+        steps:
+          # Stage 1: Run 10 pods in parallel
+          - - name: worker
+              template: worker
+              withSequence:
+                count: "10"
+
+          # Stage 2: Run 5 pods in parallel after all workers finish
+          - - name: processor
+              template: processor
+              withSequence:
+                count: "5"
+
+          # Stage 3: Final summary pod
+          - - name: summary
+              template: summary
+
+      - name: worker
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "Worker {{item}} processing sales data..."
+              sleep 10
+              echo "Worker {{item}} completed."
+
+      - name: processor
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "Processor {{item}} aggregating sales metrics..."
+              sleep 5
+              echo "Processor {{item}} completed."
+
+      - name: summary
+        container:
+          image: alpine:3.20
+          command: [sh, -c]
+          args:
+            - |
+              echo "========================================="
+              echo "Monthly Sales Workflow Finished"
+              echo "Execution Date: $(date)"
+              echo "Lead processing workers: 10"
+              echo "Aggregation processors: 5"
+              echo "Status: SUCCESS"
+              echo "Sales reports generated successfully"
+              echo "========================================="
